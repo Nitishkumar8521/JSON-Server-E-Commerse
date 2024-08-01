@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            min-height: 100vh;  
+            
+        }
+        #sign-up{
+            margin: auto;
+            text-align:start;
+        }
+        input{
+            margin: 5px;
+        }
+        #container{
+            margin: auto;
+            background-color: aquamarine;
+            text-align: center;
+            width: 40%;
+        }
+        #sign-up{
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" 
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" 
+    crossorigin="anonymous" 
+    referrerpolicy="no-referrer" 
+    />
+</head>
+<body>
+    <div id="container">
+    <h2>Sign-up...</h2>
+    <div id="sign-up">
+        <form action="">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" placeholder="Enter userName">
+            <br>
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" placeholder="Enter email-id">
+            <br>
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" placeholder="Enter password">
+            <br>
+            <input style="cursor: pointer;" type="submit">
+        </form>
+    </div>
+    </div>
+</body>
+</html>
+
+<script>
+    let form = document.querySelector('form');
+  
+
+    function saveData(event){
+        event.preventDefault();
+        let arr = event.target;
+        let userName=arr[0].value;
+        let email_id = arr[1].value;
+        let password = arr[2].value;
+        let obj={
+            name:userName,
+            email:email_id,
+            password:password
+        }
+        fetch('http://localhost:3000/users')
+        .then(function(res){return res.json()} )
+        .then(function(data){
+            let exit = data.some(ele => ele.email===email_id);
+            if(exit){
+            alert('Email id already exit');
+            }
+            else{
+                fetch('http://localhost:3000/users',{
+                method:'POST',
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify(obj)
+            });
+            localStorage.setItem("loggedStatus",JSON.stringify( {status:true, username:userName}));
+            window.location.href='products.html';
+          }
+        })
+    }
+
+    form.addEventListener('submit',function(){
+        saveData(event);
+    });
+</script>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" 
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" 
+      crossorigin="anonymous" 
+      referrerpolicy="no-referrer" 
+    />
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            min-height: 100vh;  
+            
+        }
+        #container {
+            background-color: aqua;
+            text-align: center;
+            width: 40%; 
+            padding: 20px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            border-radius: 10px;
+        }
+        input {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h2>Login ...</h2>
+        <form action="">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" placeholder="Enter Password">
+            <br>
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" placeholder="Enter Email">
+            <br>
+            <input style="cursor: pointer;" type="submit">
+        </form>
+    </div>
+</body>
+</html>
+
+<script>
+    let form = document.querySelector('form');
+
+    function login(event){
+        event.preventDefault();
+        let password = form[0].value;
+        let email = form[1].value;
+        fetch('http://localhost:3000/users')
+        .then(function(res){return res.json()} )
+        .then(function(data){
+            let exit = data.filter(ele => ele.password===password && ele.email===email);
+            if(exit.length>0){
+               alert('Login successfully!');
+               localStorage.setItem("loggedStatus",JSON.stringify( {status:true, username:exit[0].name}));
+               window.location.href='products.html';
+            }
+            else{
+                alert('Password OR email-id is incorrect');
+            }
+        })
+    }
+    form.addEventListener('submit',function(){
+        login(event)});
+</script>

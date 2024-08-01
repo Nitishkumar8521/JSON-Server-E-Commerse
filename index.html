@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON server E-Commerce App</title>
+    <style>
+          #nav{
+            display: flex;
+            justify-content: space-between;
+            background-color: rgb(118, 30, 201);
+            color: blue;
+            position: sticky;
+            top: 0px;
+          }
+          #nav>div:nth-child(2){
+            margin-right: 10%;
+          }
+          #nav>div:nth-child(2)>button:hover{
+            cursor:pointer;
+          }
+
+          /* //---------------------- */
+       #container1{
+        /* border: 2px solid red; */
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        width: 100%;
+       }
+       #container1>div{
+        /* border: 2px dotted blue; */
+        margin: 20px;
+        /* width: 30%; */
+        text-align: center;
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+       }
+       #container1>div>img{
+        width: 100%;
+        height: 300px;
+       }
+       @media all and (max-width:770px){
+            #container1{
+        /* border: 2px solid red; */
+            display: grid;
+            grid-template-columns: repeat(1,1fr);
+            width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="nav">
+            <div>
+                  <h3 style="border-radius: 2px;padding: 5px; background-color: rgb(211, 214, 12); margin-left: 20px;">NI30 MART</h3>
+            </div>
+            <div style="margin-top: 20px;">
+                <button id="sign-up" style="height: 30px;width: 70px;font-weight: 750;background-color: rgb(151, 230, 203);border-radius: 5px;">Sign-up</button>
+                <button id="login" style="height: 30px;width: 70px;font-weight: 750;background-color: rgb(151, 230, 203);border-radius: 5px;">Login</button>
+            </div>
+        </div>
+        <div id="container1">
+    </div>
+</body>
+<script>
+     let sign_up = document.querySelector('#sign-up');
+     let login = document.querySelector('#login');
+     login.addEventListener('click',function(){
+        window.location.href='login.html';
+     })
+     sign_up.addEventListener('click',function(){
+        window.location.href='sign-up.html';
+     })
+
+
+     //-------------------------------
+    let container = document.querySelector('#container1');
+
+    async function product_page(){
+        try {
+            let res = await fetch('http://localhost:3000/products');
+            let product = await res.json();
+
+            product.forEach(function(element) {
+            let item = document.createElement('div');
+            let img = document.createElement('img');
+            img.src=element.src;
+            let title = document.createElement('p');
+            title.innerText=`Title : ${element.title}`;
+            let price = document.createElement('div');
+            price.innerText=`Price : ${element.price}`;
+            let rating = document.createElement('div');
+            rating.innerText=`Rating : ${element.ratings}`;
+            item.append(img,title,price,rating);
+            container1.append(item);
+          });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    product_page(); 
+
+</script>
+</html>

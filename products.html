@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>products</title>
+    <style>
+       #container{
+        /* border: 2px solid red; */
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        width: 100%;
+       }
+       #container>div{
+        /* border: 2px dotted blue; */
+        margin: 20px;
+        /* width: 30%; */
+        text-align: center;
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+       }
+       #container>div>img{
+        width: 100%;
+        height: 300px;
+       }
+       #nav{
+            display: flex;
+            justify-content: space-between;
+            background-color: rgb(118, 30, 201);
+            color: blue;
+            position: sticky;
+            top: 0px;
+        }
+        #nav>div:nth-child(2){
+            margin-right: 7%;
+        }
+        h3{
+            color: white;
+            background-color: black;
+            /* border: 2px solid red; */
+            padding: 5px;
+
+        }
+        button{
+            margin: 10px;
+        }
+        #logout:hover{
+            cursor: pointer;
+        }
+        #cart:hover{
+            cursor: pointer;
+        }
+        @media all and (max-width:770px){
+            #container{
+        /* border: 2px solid red; */
+            display: grid;
+            grid-template-columns: repeat(1,1fr);
+            width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="nav">
+        <div>
+            <h3 style="margin-left: 15px;">NI30 MART</h3>
+        </div>
+        <div>
+            <!-- <h3 id="sign-up">Welcome</h3> -->
+            <h3 id="login"></h3>
+        </div>
+        <div>
+            <button id="cart" style="border-radius: 5px; margin-top: 18px;height:33px;font-weight:bolder;background-color: rgb(32, 224, 15);">🛒Cart</button>
+        </div>
+        <div>
+            <button id="logout" style="border-radius: 5px; margin-top: 18px;height:33px;font-weight:bolder;background-color:black;color: white;">LogOut</button>
+        </div>
+    </div>
+    <div id="container">
+
+    </div>
+</body>
+</html>
+
+<script>
+    let container = document.querySelector('#container');
+    let loggedStatus = JSON.parse(localStorage.getItem('loggedStatus'));
+    let login = document.getElementById('login');
+    login.innerText=`Welcome !  ${ loggedStatus.username}`;
+    let cartBtn = document.getElementById('cart');
+    let logoutBtn = document.querySelector('#logout');
+    logoutBtn.addEventListener('click',function(){
+       logOut();
+    })
+
+    function logOut(){
+        localStorage.removeItem("loggedStatus");
+        window.location.href='index.html';
+    }
+
+    function goTocart(){
+        window.location.href='cart.html';
+    }
+
+    cartBtn.addEventListener('click',function(){
+        goTocart();
+    })
+
+    async function addItem(id){
+        try {
+            fetch(`http://localhost:3000/products/${id}`)
+            .then((res)=>res.json())
+            .then((data)=>{
+
+                fetch(`http://localhost:3000/allUsersCart`)
+                .then((res)=>res.json())
+                .then((fetchData)=>{
+                    if(fetchData[loggedStatus.username]==undefined){
+                    fetchData[loggedStatus.username]=[data];
+                    }
+                    else{
+                       let flag = fetchData[loggedStatus.username].some((ele)=> ele.id===id);
+                       if(flag){
+                          alert('item already exit in card');
+                        }
+                        else{
+                        fetchData[loggedStatus.username].push(data);
+                        }
+                    }
+                    fetch(`http://localhost:3000/allUsersCart`,{
+                    method:'POST',
+                    headers:{
+                    "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify(fetchData)
+                    })
+                });
+            })
+            .catch((err)=>{console.log(err)});
+        } catch (error) {
+            console.log(error);
+        }
+    }    
+
+    async function updataCarditems(data){
+        try {
+            fetch('http://localhost:3000/allUsersCart',{
+                method:'POST',
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify(data)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function deleteItem(id){
+
+        try {
+            let res = await fetch('http://localhost:3000/allUsersCart');
+            let data = await res.json();
+            let flag = data[loggedStatus.username].some((ele)=>ele.id===id);
+            if(flag){
+            let newCarditems = data[loggedStatus.username].filter((ele)=>ele.id!==id);
+            data[loggedStatus.username]=newCarditems;
+            updataCarditems(data);
+           }
+           else{
+            alert("Item not in your card");
+           }
+        } catch (error) {
+            console.log("error",error);
+        }
+    }
+
+    async function product_page(){
+        try {
+            let res = await fetch('http://localhost:3000/products');
+            let product = await res.json();
+
+            product.forEach(function(element) {
+            let item = document.createElement('div');
+            let img = document.createElement('img');
+            img.src=element.src;
+            let title = document.createElement('p');
+            title.innerText=`Title : ${element.title}`;
+            let price = document.createElement('div');
+            price.innerText=`Price : ${element.price}`;
+            let rating = document.createElement('div');
+            rating.innerText=`Rating : ${element.ratings}`;
+            let addTocard = document.createElement('button');            
+            addTocard.innerText='add to card';
+            addTocard.style.backgroundColor="Yellow";
+            addTocard.style.borderRadius="5px";
+            addTocard.style.cursor="pointer";
+            addTocard.addEventListener('click',function(){
+                addItem(element.id);
+            })
+
+            item.append(img,title,price,rating,addTocard);
+            container.append(item);
+          });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    product_page();
+</script> 
